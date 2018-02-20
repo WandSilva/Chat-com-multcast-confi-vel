@@ -22,8 +22,7 @@ public class Comunication {
     private static String CONVERSATION;
     private static ArrayList<String> clients;
 
-    public Comunication(String id) {
-        MY_ID = id;
+    public Comunication() {
         CONVERSATION = "";
         clients = new ArrayList<>();
     }
@@ -90,7 +89,12 @@ public class Comunication {
      */
     public boolean login(String login, String password) {
 
+        MY_ID = login;
         return true;
+    }
+
+    public static String getMyId() {
+        return MY_ID;
     }
 
     /**

@@ -49,10 +49,8 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        id = JOptionPane.showInputDialog("Informe seu ID");
-        comunication = new Comunication(id);
+        comunication = new Comunication();
         comunication.iniciarGrupo();
-        comunication.notificarEntrada();
         atualizarTela();
     }
 
@@ -103,6 +101,9 @@ public class Controller implements Initializable {
         if (status){
             loginScreen.setVisible(false);
             chatScreen.setVisible(true);
+            id = comunication.getMyId();
+            comunication.notificarEntrada();
+
         }
         else
             JOptionPane.showMessageDialog(null, "WRONG LOGIN OR PASSWORLD", "ERROR", JOptionPane.ERROR_MESSAGE);
