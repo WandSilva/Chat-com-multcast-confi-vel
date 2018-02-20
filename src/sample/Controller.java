@@ -107,7 +107,7 @@ public class Controller implements Initializable {
 
         }
         else
-            JOptionPane.showMessageDialog(null, "WRONG LOGIN OR PASSWORLD", "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Wrong login or password!", "ERROR", JOptionPane.ERROR_MESSAGE);
 
     }
 }
