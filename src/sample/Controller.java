@@ -97,6 +97,7 @@ public class Controller implements Initializable {
     }
 
     public void login() {
+        
         boolean status = comunication.login(loginField.getText(), psField.getText());
         if (status){
             loginScreen.setVisible(false);

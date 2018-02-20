@@ -46,14 +46,11 @@ public class Nivel1 {
 
             String senha = hexString.toString();
 
-            if (obj.getLogin().equals("HostA") && senha.equals(senhaA)) {
-                System.out.println("A");
+            if (obj.getLogin().equals("HostA") && senha.equals(senhaA)) { 
                 return true;
             } else if (obj.getLogin().equals("HostB") && senha.equals(senhaB)) {
-                System.out.println("B");
                 return true;
             } else if (obj.getLogin().equals("HostC") && senha.equals(senhaC)) {
-                System.out.println("C");
                 return true;
             }
             return false;
@@ -84,10 +81,10 @@ public class Nivel1 {
         System.out.println("OK1!");
         if (!criouArquivos) {
             System.out.println("OK!");
-            File listaArquivos = new File("n1");
+            File listaArquivos = new File("senha");
             FileWriter output;
             try {
-                output = new FileWriter(new File(listaArquivos, "Nx"));
+                output = new FileWriter(new File(listaArquivos, "senhaSHA"));
                 gravarArquivos = new BufferedWriter(output);
                 MessageDigest algorithm;
                 try {
@@ -138,7 +135,7 @@ public class Nivel1 {
 
     private void pegarSenha() {
 
-        File listaArquivos = new File("n1");
+        File listaArquivos = new File("senha");
         File[] arquivos = listaArquivos.listFiles();
         BufferedReader bf;
         try {

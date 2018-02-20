@@ -77,7 +77,8 @@ public class Comunication {
     }
 
     public static void addClientOnline(String clientId) {
-        clients.add(clientId);
+        if(!clients.contains(clientId))
+            clients.add(clientId);
     }
 
     /**
@@ -89,8 +90,14 @@ public class Comunication {
      */
     public boolean login(String login, String password) {
 
-        MY_ID = login;
-        return true;
+        Client client = new Client();
+        if (client.enviarNivel1(login, password).equals("OK")){
+            MY_ID = login;
+            return true;
+        } else {
+            return false;
+        }
+        
     }
 
     public static String getMyId() {
@@ -129,12 +136,13 @@ public class Comunication {
                         Comunication.addClientOnline(dadosRecebidos[1].trim());
                         if (!MY_ID.equals(dadosRecebidos[1].trim())) {
                             Comunication.setConversation("~~" + dadosRecebidos[1] + " entrou na conversa ~~\n");
-                        }
+                        } 
                     }
                     if (msg.startsWith("1001")) {
                         String[] dadosRecebidos = msg.split(";");
                         Comunication.setConversation(dadosRecebidos[1] + ": " +
                                 dadosRecebidos[2] + "\n");
+                        Comunication.addClientOnline(dadosRecebidos[1].trim());
                     }
                 }
 
