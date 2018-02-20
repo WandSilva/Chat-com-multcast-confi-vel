@@ -20,12 +20,12 @@ public class Comunication {
     private final static int CLIENT_PORT = 44444;
     private static String MY_ID;
     private static String CONVERSATION;
-    private static String clients;
+    private static ArrayList<String> clients;
 
     public Comunication(String id) {
         MY_ID = id;
         CONVERSATION = "";
-        clients = "";
+        clients = new ArrayList<>();
     }
 
     /**
@@ -64,15 +64,6 @@ public class Comunication {
         }
     }
 
-    public static void enviarlistaConectados() {
-        byte dados[] = ("1002" + ";" + clients).getBytes();
-        DatagramPacket msgPacket = new DatagramPacket(dados, dados.length, MULTCAST_ADDRESS, CLIENT_PORT);
-        try {
-            GROUP_CONECTION.send(msgPacket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static String getConversation() {
         return CONVERSATION;
@@ -82,12 +73,24 @@ public class Comunication {
         CONVERSATION = CONVERSATION + msg;
     }
 
-    public String getClients() {
+    public ArrayList<String> getClients() {
         return clients;
     }
 
     public static void addClientOnline(String clientId) {
-        clients = clients + "," + clientId;
+        clients.add(clientId);
+    }
+
+    /**
+     *verifica os dados e retorna True para validar. Caso caso contrário, else
+     *
+     * @param login
+     * @param password
+     * @return
+     */
+    public boolean login(String login, String password) {
+
+        return true;
     }
 
     /**
@@ -122,20 +125,12 @@ public class Comunication {
                         Comunication.addClientOnline(dadosRecebidos[1].trim());
                         if (!MY_ID.equals(dadosRecebidos[1].trim())) {
                             Comunication.setConversation("~~" + dadosRecebidos[1] + " entrou na conversa ~~\n");
-                            Comunication.enviarlistaConectados();
                         }
                     }
                     if (msg.startsWith("1001")) {
                         String[] dadosRecebidos = msg.split(";");
                         Comunication.setConversation(dadosRecebidos[1] + ": " +
                                 dadosRecebidos[2] + "\n");
-                    }
-                    if (msg.startsWith("1002")) {
-                        String[] dadosRecebidos = msg.split(";");
-                        String aux = dadosRecebidos[1].trim();
-                        if (clients.length() < aux.length()) {
-                            clients = aux;
-                        }
                     }
                 }
 
