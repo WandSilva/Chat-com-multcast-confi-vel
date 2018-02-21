@@ -200,6 +200,8 @@ public class Comunication {
                                 if(!d.trim().equals(""))
                                     Comunication.setConversation(dadosRecebidos[1] + ": " + d.trim()+ "\n");
                             }
+                            int i = clients.indexOf(dadosRecebidos[1]);
+                            numberLastMsg.set(i, ((numberLastMsg.get(i)+data.length)-1));
                         }
                         
                     }
