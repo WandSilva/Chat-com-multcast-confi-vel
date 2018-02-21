@@ -15,6 +15,7 @@ import java.util.ArrayList;
  */
 public class Comunication {
 
+    private static Comunication INSTANCE = null;
     private static InetAddress MULTCAST_ADDRESS;
     private static MulticastSocket GROUP_CONECTION;
     private final static int CLIENT_PORT = 44444;
@@ -79,6 +80,16 @@ public class Comunication {
         }
     }
 
+    public void notificarSaida(){
+        byte dados[] = ("1004" + ";" + MY_ID).getBytes();
+        DatagramPacket msgPacket = new DatagramPacket(dados, dados.length, MULTCAST_ADDRESS, CLIENT_PORT);
+        try {
+            GROUP_CONECTION.send(msgPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String getConversation() {
         return CONVERSATION;
     }
@@ -88,12 +99,19 @@ public class Comunication {
     }
 
     public ArrayList<String> getClients() {
-        return clients;
+        return this.clients;
     }
 
     public static void addClientOnline(String clientId) {
         if(!clients.contains(clientId))
             clients.add(clientId);
+    }
+    public static boolean removeClientOnline(String clientId) {
+        if(clients.contains(clientId)) {
+            clients.remove(clientId);
+            return true;
+        }
+        else return false;
     }
 
     /**
@@ -117,6 +135,13 @@ public class Comunication {
 
     public static String getMyId() {
         return MY_ID;
+    }
+
+    public static Comunication getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Comunication();
+        }
+        return INSTANCE;
     }
 
     /**
@@ -177,6 +202,12 @@ public class Comunication {
                             }
                         }
                         
+                    }
+                    if(msg.startsWith("1004")){
+                        String[] dadosRecebidos = msg.split(";");
+                        if(removeClientOnline(dadosRecebidos[1].trim()));
+                            Comunication.setConversation("~~" + dadosRecebidos[1] + " saiu da conversa ~~\n");
+
                     }
                 }
 

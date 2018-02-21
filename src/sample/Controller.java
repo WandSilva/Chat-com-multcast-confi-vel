@@ -49,8 +49,9 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        comunication = new Comunication();
+        comunication = Comunication.getInstance();
         comunication.iniciarGrupo();
+        onlineBox.setEditable(false);
         atualizarTela();
     }
 
