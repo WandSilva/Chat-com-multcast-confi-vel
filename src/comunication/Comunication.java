@@ -21,10 +21,14 @@ public class Comunication {
     private static String MY_ID;
     private static String CONVERSATION;
     private static ArrayList<String> clients;
+    private static ArrayList<Integer> numberLastMsg;
+    private static ArrayList<String> messages; 
 
     public Comunication() {
         CONVERSATION = "";
         clients = new ArrayList<>();
+        numberLastMsg = new ArrayList<>();
+        messages = new ArrayList<>();
     }
 
     /**
@@ -54,7 +58,8 @@ public class Comunication {
     }
 
     public void enviarMsg(String id, String msg) {
-        byte dados[] = ("1001" + ";" + id + ";" + msg).getBytes();
+        messages.add(msg);
+        byte dados[] = ("1001" + ";" + id + ";" + msg + ";" + (messages.size()-1)).getBytes();
         DatagramPacket msgPacket = new DatagramPacket(dados, dados.length, MULTCAST_ADDRESS, CLIENT_PORT);
         try {
             GROUP_CONECTION.send(msgPacket);
@@ -63,6 +68,16 @@ public class Comunication {
         }
     }
 
+    public static void requestResend(String id, String idReceiver, int lastNumberMsg){
+        byte dados [] = ("1002" + ";" + id + ";"+ idReceiver + ";" + lastNumberMsg).getBytes();
+        System.out.println("aqui");
+        DatagramPacket msgPacket = new DatagramPacket(dados, dados.length, MULTCAST_ADDRESS, CLIENT_PORT);
+        try {
+            GROUP_CONECTION.send(msgPacket);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public static String getConversation() {
         return CONVERSATION;
@@ -134,20 +149,77 @@ public class Comunication {
                     if (msg.startsWith("1000")) {
                         String[] dadosRecebidos = msg.split(";");
                         Comunication.addClientOnline(dadosRecebidos[1].trim());
-                        if (!MY_ID.equals(dadosRecebidos[1].trim())) {
+                        if (!MY_ID.equals(dadosRecebidos[1].trim())) 
                             Comunication.setConversation("~~" + dadosRecebidos[1] + " entrou na conversa ~~\n");
-                        } 
+                        numberLastMsg.add(-1); 
                     }
                     if (msg.startsWith("1001")) {
                         String[] dadosRecebidos = msg.split(";");
-                        Comunication.setConversation(dadosRecebidos[1] + ": " +
-                                dadosRecebidos[2] + "\n");
+                        /*Comunication.setConversation(dadosRecebidos[1] + ": " +
+                                dadosRecebidos[2] + "\n");*/
+                        checkMsg(dadosRecebidos);
                         Comunication.addClientOnline(dadosRecebidos[1].trim());
+                    }
+                    if(msg.startsWith("1002")) {
+                        System.out.println("aqui1");
+                        String[] dadosRecebidos = msg.split(";");
+                        if(dadosRecebidos[2].trim().equals(MY_ID)){
+                            resend(dadosRecebidos[1].trim(), dadosRecebidos[3].trim());
+                        }
+                    }
+                    if(msg.startsWith("1003")){
+                        String[] dadosRecebidos = msg.split(";");
+                        if(dadosRecebidos[2].equals(MY_ID)){
+                            String [] data = dadosRecebidos[3].split("@");
+                            for(String d: data){
+                                if(!d.trim().equals(""))
+                                    Comunication.setConversation(dadosRecebidos[1] + ": " + d.trim()+ "\n");
+                            }
+                        }
+                        
                     }
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        private void resend(String idRequester, String numberLastMsg) {
+            StringBuilder msg = new StringBuilder();
+            int number = Integer.parseInt(numberLastMsg);
+            int t = messages.size();
+            
+            for(int i = number+1; i<t; i++){
+                msg.append(messages.get(i)).append("@");
+            }
+            byte dados [] = ("1003" + ";" + MY_ID  + ";" + idRequester + ";" + msg.toString()).getBytes();
+            DatagramPacket msgPacket = new DatagramPacket(dados, dados.length, MULTCAST_ADDRESS, CLIENT_PORT);
+            try {
+                GROUP_CONECTION.send(msgPacket);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private void checkMsg(String[] dadosRecebidos) {
+            String idAuthor = dadosRecebidos[1];
+            Integer numberMsg = Integer.parseInt(dadosRecebidos[3].trim());
+            if(clients.contains(idAuthor.trim())){
+                int id = clients.indexOf(idAuthor);
+                System.out.println("Author: "+idAuthor+" id is this: "+id);
+                if(numberMsg>(numberLastMsg.get(id)+1)){
+                    System.out.println("numberMsg: "+numberMsg+"number last: "+numberLastMsg.get(id));
+                    requestResend(MY_ID, idAuthor, numberLastMsg.get(id));
+                }else{
+                    Comunication.setConversation(dadosRecebidos[1] + ": " +
+                                dadosRecebidos[2] + "\n");
+                    numberLastMsg.set(id, numberMsg);
+                }
+            }else{
+                Comunication.setConversation(dadosRecebidos[1] + ": " +
+                                dadosRecebidos[2] + "\n");
+                numberLastMsg.add(numberMsg);
             }
         }
     }
